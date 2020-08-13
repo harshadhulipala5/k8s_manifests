@@ -1,0 +1,24 @@
+---
+# Created from kubectl create deployment httpd-frontend --image=httpd:2.4-alpine --dry-run=client -o yaml > httpd-frontend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: httpd
+    tier: frontend
+  name: httpd-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpd
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: httpd
+        tier: frontend
+    spec:
+      containers:
+      - image: httpd:2.4-alpine
+        name: httpd

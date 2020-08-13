@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata: # metadata for ReplicaSet
+  name: myapp-replicaset
+  labels:
+    app: myapp
+    type: frontend
+spec: # spec for replicaset
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: frontend
+    spec:
+        containers:
+          - name: nginxcontainer
+            image: nginx
+  replicas: 6 #scale to 6 , then apply
+  selector:
+    matchLabels: # matches the labels on the pods
+      type: frontend
