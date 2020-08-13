@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
  name: microservice
  labels:
-  app: counter
+  app: counter1
