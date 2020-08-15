@@ -1,0 +1,20 @@
+---
+#kubectl create service nodeport nginx --tcp=80:80 --dry-run=client -o yaml
+# [--tcp=port:targetPort]
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nginx-deployment
+  name: nginx
+spec:
+  ports:
+  - name: "80"
+    nodePort: 30000 # added explicit
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx-deployment
+  type: NodePort
