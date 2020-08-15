@@ -1,0 +1,21 @@
+---
+# kubectl create service nodeport httpd-service  --tcp=80:80 --dry-run=client -o yaml
+# [--tcp=port:targetPort]
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: httpd
+  name: httpd-service
+spec:
+  type: NodePort
+  ports:
+  - name: 80-80
+    nodePort: 30000 # added explicit
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: httpd
+    tier: frontend
