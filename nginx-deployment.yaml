@@ -13,7 +13,7 @@ spec: # Deployment Spec
       containers:
       - image: nginx
         name: nginx
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels: # matches the labels on the pods
       app: nginx-deployment
