@@ -1,14 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata:
+metadata:  # Deployment metadata
   name: nginx-deployment
   labels:
     app: nginx-deployment
+    tier: frontend
 spec: # Deployment Spec
   template:
     metadata: # Pod metadata
       labels:
         app: nginx-deployment
+        tier: frontend
     spec: # Pod spec
       containers:
       - image: nginx
@@ -17,3 +19,4 @@ spec: # Deployment Spec
   selector:
     matchLabels: # matches the labels on the pods
       app: nginx-deployment
+      tier: frontend
