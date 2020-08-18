@@ -3,6 +3,7 @@ kind: ReplicaSet
 metadata:
   labels:
     app: mysql
+    tier: backend
   name: mysql-replicaset
 spec:
   replicas: 2
@@ -13,6 +14,7 @@ spec:
     metadata:
       labels:
         app: mysql
+        tier: backend
     spec:
       containers:
       - image: mysql
