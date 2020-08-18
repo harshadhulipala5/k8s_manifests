@@ -3,8 +3,10 @@ kind: Pod
 metadata:
   name: nginxpod
   labels:
-    type: frontend
+    tier: frontend
 spec:
   containers:
-    - name: nginxcontainer
+    - name: nginx
       image: nginx
+      ports:
+        - containerPort: 80
