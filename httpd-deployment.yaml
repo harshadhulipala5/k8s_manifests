@@ -1,5 +1,5 @@
 ---
-# Created from kubectl create deployment httpd-frontend --image=httpd:2.4-alpine --dry-run=client -o yaml > httpd-frontend.yaml
+# Created from kubectl create deployment httpd-frontend --image=httpd --dry-run=client -o yaml > httpd-frontend.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,3 +22,10 @@ spec:
       containers:
       - image: httpd
         name: httpd
+        volumeMounts:
+          - mountPath: /usr/local/apache2/htdocs/
+            name: httpd-pv
+      volumes:
+        - name: httpd-pv
+          hostPath:
+              path: "/tmp/www/html/"
