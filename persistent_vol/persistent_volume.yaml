@@ -1,14 +1,16 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: task-pv-volume
+  name: nginx-pv-volume
   labels:
     type: local
+    app: nginx-pv
 spec:
   storageClassName: manual
   capacity:
-    storage: 1G
+    storage: 100M
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/tmp/data"
+    path: "/tmp/data/nginx/"
+    type: Directory
