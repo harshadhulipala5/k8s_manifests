@@ -23,7 +23,7 @@ spec:
       - image: httpd
         name: httpd
         volumeMounts:
-          - mountPath: "/usr/local/apache2/htdocs/"
+          - mountPath: "/usr/local/apache2/htdocs/" # we have index.html here
             name: httpd-pv
       volumes:
         - name: httpd-pv
