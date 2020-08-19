@@ -1,0 +1,27 @@
+---
+# Created from kubectl create deployment httpd-frontend --image=httpd --dry-run=client -o yaml > httpd-frontend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: httpd
+    tier: frontend
+  name: httpd-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: httpd
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: httpd
+        tier: frontend
+    spec:
+      containers:
+      - image: httpd
+        name: httpd
+        volumeMounts:
+          - mountPath: /var/www/html
+            name: httpd-pv
