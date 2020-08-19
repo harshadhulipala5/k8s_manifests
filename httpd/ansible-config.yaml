@@ -1,0 +1,11 @@
+- hosts: k8s
+  tasks:
+  - name: Create Directory
+    file:
+      path: /tmp/www/html/
+      state: directory
+      mode: '0755'
+  - name: Copy Index file
+    copy:
+        src: /tmp/www/html/
+        dest: /tmp/www/html/
