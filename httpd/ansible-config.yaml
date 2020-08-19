@@ -1,3 +1,5 @@
+---
+  # playbook for copying file to slave nodes to have sync on volumes
 - hosts: k8s
   tasks:
   - name: Create Directory
