@@ -22,10 +22,10 @@ spec:
       containers:
       - image: httpd
         name: httpd
-        volumeMounts:
+        volumeMounts: # path on the containers
           - mountPath: /usr/local/apache2/htdocs/
             name: httpd-pv
-      volumes:
-        - name: httpd-pv
+      volumes: # volume path
+        - name: httpd-pv 
           hostPath:
               path: "/tmp/www/html/"
