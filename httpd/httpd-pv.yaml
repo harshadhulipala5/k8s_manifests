@@ -11,5 +11,5 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/tmp/www/html"
+    path: "/tmp/www/html/"
     type: Directory
