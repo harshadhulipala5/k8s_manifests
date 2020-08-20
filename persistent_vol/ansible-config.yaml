@@ -1,0 +1,13 @@
+---
+  # playbook for copying file to slave nodes to have sync on volumes
+- hosts: k8s
+  tasks:
+  - name: Create Directory
+    file:
+      path: /tmp/data/nginx/
+      state: directory
+      mode: '0755'
+  - name: Copy Index file
+    copy:
+        src: /tmp/data/nginx/
+        dest: /tmp/data/nginx/
