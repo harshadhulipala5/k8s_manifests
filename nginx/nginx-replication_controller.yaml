@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ReplicationController
+metadata: # metadata for ReplicationController
+  name: nginx-rc
+  labels:
+    app: myapp
+    type: frontend
+spec: # spec for replication controller
+ template: # template is used to create multiple pods
+    metadata: # metadata for pod
+      name: nginx
+      labels:
+        type: frontend
+    spec: # spec for pod
+      containers:
+        - name: nginxcontainer
+          image: nginx
+ replicas: 3
