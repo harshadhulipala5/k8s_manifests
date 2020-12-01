@@ -1,0 +1,812 @@
+k8s commands
+
+kubectl get nodes
+
+kubectl get pods -> gets pods which are there in default namespace 
+
+kubectl get pods -n namespace 
+
+kubectl get pods -A  -> get pods of all name spaces 
+
+kubectl get pods -o wide -- gives below o/p
+
+NAME                                READY   STATUS    RESTARTS   AGE     IP             NODE          NOMINATED NODE   READINESS GATES
+httpd-deployment-74c4f67bc5-78s4g   1/1     Running   1          2d19h   192.168.1.41   slave-node    <none>           <none>
+httpd-deployment-74c4f67bc5-smbnj   1/1     Running   1          2d19h   192.168.2.14   slave-node2   <none>           <none>
+httpd-deployment-74c4f67bc5-w9nck   1/1     Running   1          2d19h   192.168.1.42   slave-node    <none>           <none>
+myapp-replicaset-52wfb              1/1     Running   1          3d3h    192.168.0.24   master-node   <none>           <none>
+myapp-replicaset-n5sp2              1/1     Running   1          3d3h    192.168.2.13   slave-node2   <none>           <none>
+myapp-replicaset-sx29c              1/1     Running   1          3d3h    192.168.1.39   slave-node    <none>           <none>
+nginx-deployment-5969c7f455-288br   1/1     Running   1          2d20h   192.168.2.15   slave-node2   <none>           <none>
+nginx-deployment-5969c7f455-knmrv   1/1     Running   0          10m     192.168.0.26   master-node   <none>           <none>
+nginx-deployment-5969c7f455-qns28   1/1     Running   0          5m34s   192.168.0.28   master-node   <none>           <none>
+nginx-deployment-5969c7f455-svjg4   1/1     Running   1          2d20h   192.168.2.16   slave-node2   <none>           <none>
+nginx-deployment-5969c7f455-tp4dq   1/1     Running   1          2d20h   192.168.1.40   slave-node    <none>           <none>
+
+
+kubectl logs -n namespace app appname
+
+kubectl logs -n namespace app appname --tail
+
+kubectl get services
+
+kubectl get namespace 
+
+kubectl create namespace namespacename
+
+kubectl create service servicename 
+
+kubectl create -f filename.yml --> create pods, service ,name space , deployment using manifest file 
+
+kubectl create -n namespace -f filename.yml 
+
+kubectl create -n namespace -f filename1.yml -f filename2.yml -f filename3.yml
+
+kubectl create -n namespace -f directory --> create from manifest available inside directory
+
+kubectl get -n deployment-ns deployments --> get deployments in namespace deployment-ns
+
+kubectl -n deployment-ns get pods 
+
+kubectl scale -n deployment-ns deployment support-tier --replicas=2 -->scaling of the pods 
+
+kubectl get -n deployment-ns pods -w --> to watch pods 
+				or
+watch -n 1 kubectl -n deployment-ns get pods 
+
+watch kubectl top pods -n deployment-ns --> list cpu and memory usage 
+
+kubectl describe -n deployment-ns service support-tier
+
+kubectl create -n deployment-ns -f deployment_ns_data-tier.yml -f deployment_ns_app-tier.yml -f deployment_ns_support-tier.yml
+
+kubectl apply -n namespace -f filename1.yml -f filename2.yml -f filename3.yml --> apply the  changes in manifest file to pods without recreating the pods 
+
+kubectl delete -n deployment-ns -f deployment_ns_data-tier.yml -f deployment_ns_app-tier.yml -f deployment_ns_support-tier.yml
+
+kubectl autoscale deployment app-tier --max=5 --min=1 --cpu-percent=70
+
+kubectl api-resources 
+
+kubectl edit -n deployment_ns hpa 
+
+hpa HorizontalPodAutoscaler
+
+
+########################
+// get the yaml file with --dry-run flag
+kubectl run nginx --image=nginx --restart=Never --dry-run -o yaml > nginx-pod.yaml
+kubectl create deploy webapp --image=nginx --dry-run -o yaml > webapp.yaml
+https://medium.com/bb-tutorials-and-thoughts/practice-enough-with-these-questions-for-the-ckad-exam-2f42d1228552
+Generate pod yaml with below command
+kubectl run — generator=run-pod/v1 nginx — image=nginx -o yaml —-dry-run > nginx.yaml
+
+Generate deployment yaml with below command
+kubectl create deploy nginx — image=nginx —-dry-run -o yaml > nginx-ds.yaml
+
+Generate service yaml with below command
+kubectl expose pod hello-world — type=NodePort — name=example-service
+kubectl expose deployment hello-world —type=NodePort — name=example-service
+
+https://medium.com/faun/certified-kubernetes-administrator-cka-tips-and-tricks-part-1-2e98e9b31de4
+https://dev.to/kodekloud/tips-and-tricks-to-pass-the-cka-and-ckad-exam-c76
+########################
+
+kubectl edit pod <podname> -- to edit the pod content 
+
+kubectl get replicationcontrollers  -- to get replicationcontrollers
+
+kubectl get replicaset
+
+kubectl delete replicaset <replicaset-name> -- to get replicasets & pods as well 
+
+kubectl apply -f nginx-replicaset.yaml -- to apply new changes without stopping the pods 
+
+kubectl replace -f nginx-replicaset.yaml -- replace the content and apply changes
+
+kubectl edit replicaset <replicaset-name> -- to edit already created replicaset 
+
+Method 1:
+prior to execute below command we need to update the replicas number in the pod-def file
+
+kubectl replace -f pod-def.yaml
+
+kubectl apply -f pod-def.yaml
+
+Method 2:
+without updating the pod-def file 
+
+Note: below command will no update the replicas in the manifest file by updates the no. of replicas using the file 
+
+kubectl scale --replicas=<no of replicas to scale> -f pod-def.yaml
+
+kubectl scale replicasets.apps myapp-replicaset --replicas=3
+
+
+kubectl create deployment nginx --image=nginx --restart=never --dry-run -o yaml
+
+
+Deployment:
+
+---------------------------------------------------------------------------------------
+kubectl create deployment nginx-deployment --image=nginx --dry-run=client -o yaml
+
+kubectl run  nginx --image=nginx --dry-run=client -o yaml
+----------------------------------------------------------------------------------------
+
+kubectl create deployment -f nginx-deployment.yaml
+
+We cant create and scale a deployment a time , it need to be done one after the other 
+
+kubectl create deployment --image=nginx nginx	----------------> create deployment
+
+kubectl scale deployment nginx --replicas=5		----------------> scale the pods 
+
+kubectl get all -- gives all objects(pods,replicaset,services,deployments and more) details available in namespace 
+
+ kubectl get pods --show-labels=true
+ 
+ kubectl get pods --label-columns=app
+ 
+ kubectl get pods --label-columns=tier
+ 
+ kubectl scale --replicas=<no of replicas to scale> -f nginx-deployment.yaml
+ 
+ kubectl describe deployment <deployment-name>
+ 
+ kubectl edit deployment <deployment-name>
+
+There are 3 ways to scale up/down pods 
+
+1. edit the existing deployment --> kubectl edit deployments.apps nginx-deployment -- this updates automatically 
+2. ecit the manifest file and replace/apply --> kubectl replace -f nginx-deployment.yaml /kubectl apply -f nginx-deployment.yaml
+3. using scale --> kubectl scale --replicas=5 -f nginx-deployment.yaml
+
+Services 
+
+
+Available Commands: (these are types of services)
+  clusterip    Create a ClusterIP service.
+  externalname Create an ExternalName service.
+  loadbalancer Create a LoadBalancer service.
+  nodeport     Create a NodePort service.
+
+Usage:
+  kubectl create service nodeport NAME [--tcp=port:targetPort] [--dry-run=server|client|none] [options]
+
+When we use this command we will not nodeport,clusterip,loadBalancer in the spec --> ports section we need to add the explicit later 
+
+
+ kubectl create service nodeport httpd-service  --tcp=80:80 --dry-run=client -o yaml
+
+ kubectl create service clusterip httpd-service --tcp=80:80 --dry-run=client -o yaml
+ 
+ kubectl create service loadbalancer httpd-service --tcp=80:80 --dry-run=client -o yaml
+ 
+ kubectl create service externalname httpd-service --tcp=80:80 --dry-run=client -o yaml
+ 
+ kubectl expose pod redis --port=6379 --name redis-service --type=ClusterIP --dry-run=client -o yaml
+ or
+ kubectl create service clusterip redis --tcp=6379:6379 --dry-run=client -o yaml
+ 
+ kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml
+ or
+ kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run=client -o yaml
+ 
+ 
+------------Sample--------
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: httpd
+  name: httpd
+spec:
+  ports:
+  - name: 80-80
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: httpd
+  type: NodePort
+status:
+  loadBalancer: {}
+  
+------------Modified------
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: httpd
+  name: httpd-service
+spec:
+  type: NodePort
+  ports:
+  - name: 80-80
+    nodePort: 30000
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: httpd
+    tier: frontend
+
+
+kubectl create -f httpd-service.yaml
+
+kubectl get services
+
+kubectl describe services <servicename>
+-------------------------------------------------------------
+
+All are Imperative approach 
+
+kubectl run --image=nginx nginx  				----------------> create pod
+kubectl create deployment --image=nginx nginx	----------------> create deployment
+kubectl expose deployment nginx --port 80		----------------> create a service to deployment
+kubectl edit deployment nginx					----------------> edit the objects
+kubectl scale deployment nginx --replicas=5		----------------> scale the pods 
+kubectl set image deployment nginx nginx=nginx:1.18 ------------> set image
+kubectl create -f nginx-deployment.yaml			----------------> create the objects using file 
+kubectl replace -f nginx-deployment.yaml 		----------------> to replace the object in the file 
+kubectl delete -f nginx-deployment.yaml 		----------------> delete the objects created using file 
+
+Declarative approach 
+
+kubectl apply -f nginx-deployment.yaml	    	----------------> check the file and takes the decicsion accordingly to create objects 
+kubectl apply -f directory			----------------> will create all objects which are available in folder 
+
+
+Rolling Update and Rollback
+
+# --image=redis:5.0
+kubectl create -f redis-deployment.yaml 
+
+kubectl get deployments.apps
+[root@master-node manifest]# kubectl get deployments.apps redis-deployment
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+redis-deployment   5/5     5            5           15s
+
+
+kubectl get replicasets.apps
+
+[root@master-node manifest]# kubectl get replicasets.apps redis-deployment-847b5c89c7
+NAME                          DESIRED   CURRENT   READY   AGE
+redis-deployment-847b5c89c7   5         5         5       37s
+
+
+kubectl set image -f redis-deployment.yaml redis=redis:6.0
+
+deployment.apps/redis-deployment image updated
+
+kubectl get replicasets.apps
+
+[root@master-node manifest]# kubectl get replicasets.apps
+NAME                          DESIRED   CURRENT   READY   AGE
+httpd-deployment-74c4f67bc5   3         3         3       3d
+myapp-replicaset              3         3         3       3d8h
+nginx-deployment-5969c7f455   4         4         4       3d
+redis-deployment-6c4cf9df9b   5         5         3       5s
+redis-deployment-847b5c89c7   0         0         0       54s
+
+
+[root@master-node manifest]# kubectl rollout status deployment redis-deployment
+deployment "redis-deployment" successfully rolled out
+
+[root@master-node manifest]# kubectl rollout history deployment redis-deployment
+deployment.apps/redis-deployment
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+
+
+[root@master-node manifest]# kubectl describe deployments.apps redis-deployment
+Name:                   redis-deployment
+Namespace:              default
+CreationTimestamp:      Sat, 15 Aug 2020 11:12:49 -0400
+Labels:                 app=redis-deployment
+Annotations:            deployment.kubernetes.io/revision: 2
+Selector:               app=redis-deployment
+Replicas:               5 desired | 5 updated | 5 total | 5 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=redis-deployment
+  Containers:
+   redis:
+    Image:        redis:6.0
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   redis-deployment-6c4cf9df9b (5/5 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  2m9s  deployment-controller  Scaled up replica set redis-deployment-847b5c89c7 to 5
+  Normal  ScalingReplicaSet  80s   deployment-controller  Scaled up replica set redis-deployment-6c4cf9df9b to 2
+  Normal  ScalingReplicaSet  80s   deployment-controller  Scaled down replica set redis-deployment-847b5c89c7 to 4
+  Normal  ScalingReplicaSet  80s   deployment-controller  Scaled up replica set redis-deployment-6c4cf9df9b to 3
+  Normal  ScalingReplicaSet  78s   deployment-controller  Scaled down replica set redis-deployment-847b5c89c7 to 3
+  Normal  ScalingReplicaSet  78s   deployment-controller  Scaled up replica set redis-deployment-6c4cf9df9b to 4
+  Normal  ScalingReplicaSet  77s   deployment-controller  Scaled down replica set redis-deployment-847b5c89c7 to 2
+  Normal  ScalingReplicaSet  77s   deployment-controller  Scaled up replica set redis-deployment-6c4cf9df9b to 5
+  Normal  ScalingReplicaSet  77s   deployment-controller  Scaled down replica set redis-deployment-847b5c89c7 to 1
+  Normal  ScalingReplicaSet  74s   deployment-controller  (combined from similar events): Scaled down replica set redis-deployment-847b5c89c7 to 0
+
+
+[root@master-node manifest]# kubectl rollout undo deployment redis-deployment
+deployment.apps/redis-deployment rolled back
+
+
+[root@master-node manifest]# kubectl get replicasets.apps
+NAME                          DESIRED   CURRENT   READY   AGE
+httpd-deployment-74c4f67bc5   3         3         3       3d
+myapp-replicaset              3         3         3       3d8h
+nginx-deployment-5969c7f455   4         4         4       3d
+redis-deployment-6c4cf9df9b   0         0         0       2m4s
+redis-deployment-847b5c89c7   5         5         5       2m53s
+
+
+
+
+ConfigMaps 
+
+CLI 
+kubectl create configmap nginx-configmap --from-literal=key1=value1 
+
+
+[root@master-node manifest]# cat nginx-configmap.properties
+key=value
+
+From File 
+
+kubectl create configmap nginx-configmap --from-file=nginx-configmap.properties
+
+
+kubectl describe configmaps nginx-configmap
+Name:         nginx-configmap
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+nginx-configmap.properties:
+----
+key=value
+
+Events:  <none>
+
+kubectl create configmap nginx-configmap --from-literal=key1=value1 --from-literal=key1=value1  -o yaml --dry-run=client
+
+apiVersion: v1
+data:
+  key1: value1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: nginx-configmap
+
+[root@master-node manifest]# kubectl create configmap nginx-configmap --from-literal=key1=value1 --from-literal=key2=value2  -o yaml --dry-run=client
+apiVersion: v1
+data:
+  key1: value1
+  key2: value2
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: nginx-configmap
+
+
+kubectl create -f nginx-configmap.yaml -- creates a configmap 
+
+
+kubectl get configmaps
+
+kubectl describe configmaps
+
+
+Inject configmap in pods 
+
+add envFrom: under spec: # before that we need to create a configmap nginx-configmap
+
+
+Method 1:
+
+envFrom:
+ - configMapRef:
+		   name: nginx-configmap
+
+Method 2:
+
+env:
+	- name: appconfig
+	  valueFrom:
+		configMapKeyRef:
+			name: nginx-configmap
+			key: key1
+
+
+Method 3:
+
+As file in a volume 
+
+volumes:
+
+- name: app-config-volume
+  configMap:
+	name: nginx-configmap
+
+
+Secrets:
+
+Available Commands:
+  docker-registry Create a secret for use with a Docker registry
+  generic         Create a secret from a local file, directory or literal value
+  tls             Create a TLS secret
+
+
+Here secret values are stored in encrypted format 
+ex:
+key1: dmFsdWUx
+
+[root@master-node manifest]# kubectl create secret generic nginx-secret --from-literal=key1=value1 -o yaml --dry-run=client
+apiVersion: v1
+data:
+  key1: dmFsdWUx
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: nginx-secret
+
+[root@master-node manifest]# kubectl create secret generic nginx-secret --from-literal=key1=value1 --from-literal=key2=value2 -o yaml --dry-run=client
+apiVersion: v1
+data:
+  key1: dmFsdWUx
+  key2: dmFsdWUy
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: nginx-secret
+
+kubectl create -f nginx-secret.yaml --> creates a secret
+
+kubectl create secret generic nginx-secret --from-literal=key1=value1 --from-literal=key2=value2 
+
+kubectl create secret generic nginx-secret --from-file=/root/nginx-secret.properties
+
+[root@master-node manifest]# cat nginx-secret.properties
+key1=value1
+
+
+[root@master-node manifest]# kubectl create secret generic nginx-secret --from-file=nginx-secret.properties
+secret/nginx-secret created
+
+
+[root@master-node manifest]# kubectl describe secret nginx-secret
+Name:         nginx-secret
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+nginx-secret.properties:  10 bytes
+
+
+When we create the secret manifest file ourself without using dry run we need to encode the values by ourself 
+
+to encode 
+
+echo -n "value" | base64   ------------> this command will encrypt the value 
+
+echo -n "dmFsdWUK" | base64 -d -------------> this command will decrypt the value 
+
+
+nginx-secret.yaml 
+
+apiVersion: v1
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: nginx-secret
+data:
+ key: dmFsdWUK # value is copied from above encoded 
+
+
+
+Inject the secret to pod 
+
+
+Method 1: As environmnent variable 
+
+envFrom:
+ - secretRef:
+		name: nginx-secret
+
+Method 2: As single env 
+
+env:
+	- name: appconfig
+	  valueFrom:
+		secretKeyRef:
+			name: nginx-secret
+			key: key1
+
+
+Method 3:
+
+As file in a volume 
+
+volumes:
+
+- name: app-secret-volume
+  secret:
+	secretName: nginx-secret
+
+each attribute in the secret is created as file 
+
+
+Multi-Container Pods 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80  
+  - name: nginx
+    image: alpine
+    command: ["watch", "wget", "-qO-", "localhost"]
+
+
+
+Persistent Volumes
+
+
+kubectl create -f persistent_volume.yaml
+
+
+[root@master-node persistent_vol]# cat persistent_volume.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100M
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/data/nginx/"
+
+
+kubectl create -f persistent_vol_claim.yaml
+
+[root@master-node persistent_vol]# cat persistent_vol_claim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50M
+
+
+[root@master-node persistent_vol]# cat persistent_vol_pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+spec:
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: task-pv-volume
+  volumes:
+    - name: task-pv-volume
+      persistentVolumeClaim:
+        claimName: task-pv-claim
+
+
+
+
+
+[root@master-node manifest]# kubectl get persistentvolumes
+NAME             CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                   STORAGECLASS   REASON   AGE
+task-pv-volume   1G         RWO            Retain           Bound    default/task-pv-claim   manual                  3m10s
+
+[root@master-node manifest]# kubectl get persistentvolumeclaims
+NAME            STATUS   VOLUME           CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+task-pv-claim   Bound    task-pv-volume   1G         RWO            manual         3m31s
+
+
+######################
+
+Manual Scheduling 
+
+scheduling pod on master node 
+
+[root@master-node manifest]# cat nginx-manualschedule.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginxpod
+  labels:
+    tier: frontend
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+  nodeName: master-node
+
+
+kubectl get pods --selector app="frontend"
+
+kubectl get all --selector env="prod"
+
+kubectl get pod --selector "env=prod,bu=finance,tier=frontend"
+
+
+
+Taints
+
+Add a Taint 
+
+kubectl taint nodes node1 key=value:NoSchedule
+
+kubectl taint nodes node01 spray=mortein:NoSchedule
+
+Remove a Taint 
+(we need to remove value and add - at the end of effect)
+
+kubectl taint nodes node1 key:NoSchedule-
+
+
+
+Tolerations
+
+tolerations:
+- key: "key"
+  operator: "Equal"
+  value: "value"
+  effect: "NoSchedule"
+
+tolerations:
+- key: "key"
+  operator: "Exists"
+  effect: "NoSchedule"
+
+kubectl taint nodes node01 spray=mortein:NoSchedule
+
+kubectl run mosquito --image=nginx 
+
+the above moquito pod can't be schedule on node01 as it is tainted and mosquito pod have tolerant for the pod 
+
+
+kubectl create -f bee.yaml 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bee
+spec:
+  containers:
+  - image: nginx
+    name: bee
+  tolerations:
+  - key: spray
+    operator: Equal
+    value: mortein
+    effect: NoSchedule
+	
+kubectl create -f bee.yaml 
+
+
+Node Selector:
+
+
+label Node
+
+kubectl label nodes <node-name> <label-key>=<label-value>
+
+kubectl label nodes master-node size=medium
+
+kubectl label nodes slave-node  size=small
+
+kubectl label nodes slave-node2 size=xsmall
+
+kubectl get nodes --show-labels
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: redis
+  name: redis
+spec:
+  containers:
+  - image: redis
+    name: redis
+  nodeSelector:
+	size: xsmall 
+
+
+Node Affinity 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: redis-deployment-na
+  name: redis-deployment-na
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: redis-deployment-na
+  template:
+    metadata:
+      labels:
+        app: redis-deployment-na
+    spec:
+      containers:
+      - image: redis:5.0
+        name: redis
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+  # we need to label nodes before selecting them here
+            - matchExpressions:
+              - key: size
+                operator: In
+                values:
+                - xsmall #
+
+
+############################
+Kubernetes Maintenance 
+
+drain 
+
+kubectl drain node01 --ignore-daemonsets
+
+force drain 
+
+kubectl drain node02 --ignore-daemonsets --force

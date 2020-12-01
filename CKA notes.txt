@@ -1,0 +1,647 @@
+
+Use the code DEVOPS15 while registering for the CKA or CKAD exams at Linux Foundation to get a 15% discount.
+
+Worker Node - host application on container 
+
+Master Node - Manage kubernetes cluster ,monitoring nodes 
+
+Master Node uses Control Plane components to manage the cluster
+
+Control Plane components
+
+ETCD cluster 
+	
+	store data in key value format
+
+Kube-scheduler 
+	
+	Identifies a node to place a container based on resource,worker node capacity,policies or constraints 
+
+Controller Manager
+
+	Node Controller - takes care of nodes ,onboard new nodes to cluster,handles the nodes that are created or destroyed
+						monitor node every 5 secs
+						if node is down it wait for 40 secs to get it up 
+						pod eviction timeout - 5 mins
+
+	Replication Controller - checks desired number of container are running on a replication group
+	Deployment Controller
+	NameSpace Controller
+	PV - Binder Controller 
+	PV Protection Controller
+	Service Account Controller
+	Job Controller
+	Cronjob 
+	ReplicaSet
+	StatefulSet
+	
+	
+Kubeapiserver
+
+	Primary Management component of K8s
+	Responsible for orchestration of all operation on a cluster 
+	
+Containers
+	
+	Applications are in form of containers, all the components which are hosted on master are in form of containers 
+	Container runtime Interface (CRI) - Docker,Container.d,Rocket
+	Docker needs to be installed on Master & Worker Nodes
+	
+Kubelet
+
+	Kubelet is an agent that run on node of a cluster 
+	Gets instructions from kubeapiserver , deploy/destroy containers on the nodes
+	Kubeapiserver fetches status report from kubelet to monitor the state of nodes on the cluster
+	
+Kubeproxy
+
+	Network - Allows to connect to the other containers on the node 
+
+____________________________________________________________________________________________________
+
+ETCD 
+
+	Distributed reliable key value store. simple ,fast  secure 				
+	
+	key 	value
+	
+	name 	harsha
+	age 	29
+	
+	by default etcd runs on port 2379
+	
+	etcd comes as binary which need to installed on server, it also has a etcd controller client
+	
+	./etcdctl set key value
+	
+	./etcdctl get key 
+	
+			This will retrieve the value that is stored in etcd 
+	
+	explore more from ./etcdctl --help
+	
+	Stores data of 
+					Nodes
+					Pods
+					Configs
+					Secrets
+					Accounts
+					Roles
+					Bindings & more 
+	
+	when ever we run the kubectl get , the data is going to fetch from the etcd 
+	change made to cluster ,nodes , pods , replica set are updated to etcd,once its updated in etcd server we can consider it as change is complete
+
+
+Kube-apiserver
+Kube Control Manager
+Kubescheduler
+Kubelet
+Kubeproxy
+Pods
+
+Pods with Yaml
+
+
+apiVersion: 
+
+Version of k8s api to create objects 
+
+kind 		version
+Pods			v1
+Service 		v1
+ReplicaSet apps/v1
+Deployment apps/v1
+
+
+Kind :
+
+Refers to type of object we create 
+
+Pods		
+Service 	
+ReplicaSet
+Deployment
+
+Metadata:
+
+Data about the object 
+
+metadata is in form of a dictionary 
+
+labels can have as many key value pair it can 
+
+examples
+
+metadata:
+	name: string 
+	labels:
+		app: appname
+		type: 
+		
+
+Spec:
+
+Spec is a dictionary
+Containers under spec is List/Array
+
+spec:
+	containers:
+		- name: nginx-container
+		  image: nginx
+
+
+
+RelpicationController , ReplicaSet:
+
+Role of replicaset is to monitor pods and create new one if anyone of them fails 
+
+Selector is the major difference b/n ReplicationController & ReplicaSet
+
+
+Labels & Selector:
+
+    metadata: #metadata of pods 
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: frontend
+
+  selector:
+    matchLabels: # matches the labels on the pods
+      type: frontend
+
+
+how to scale a application
+
+Method 1:
+prior to execute below command we need to update the replicas number in the pod_def file
+
+kubectl replace _f pod_def.yaml
+kubectl apply _f pod_def.yaml
+
+Method 2:
+without updating the pod_def file 
+
+Note: below command will no update the replicas in the file 
+
+kubectl scale --replicas=<no of replicas to scale> -f pod_def.yaml
+
+
+Deployments:
+
+Deployment and ReplicaSet set manifest file are similar expect kind 
+When we create deployment , we are also creating a replicaset 
+
+Capabilities
+
+deploy
+upgrade
+rolling update 
+rollback
+pause 
+resume
+
+pods are replicated by using replicaset 
+
+	
+			Deployment
+	 __________________________
+	|	   	ReplicaSet         |
+	|	 __________________    |
+	|	|                  |   |
+	|   |   Pods       	   |   |   
+	|   |                  |   |
+	|   |__________________|   | 
+	|						   |
+	|__________________________|
+
+Deployment yaml file is similar to ReplicaSet except kind 
+
+Creates a yaml template
+
+kubectl create deployment nginx_deployment --image=nginx --dry-run=client -o yaml > nginx_deployment.yaml
+
+
+Services:
+
+enable comm b/n applications
+
+types
+
+NodePort
+ClusterIP
+LoadBalancer
+Externalname
+
+NodePort  _ service make intenal pod accessible on a port on the Node
+			A NodePort service is the most primitive way to get external traffic directly to your service
+			
+			 _________O__________	---------> NodePort
+			|					 |
+			|					 |
+			|		Node		 |
+			|					 |
+			|____________________|
+ClusterIP _ service create a virtual IP inside cluster to enable comm. b/n services 
+			A ClusterIP service is the default Kubernetes service. It gives you a service inside your cluster that other apps inside your cluster can access. There is no external access.
+			its an intenal IP created 
+			
+					Node
+			 ____________________
+			|					 |
+			|					 |
+			|		  O ---------|------------> ClusterIP	 
+			|					 |
+			|____________________|
+
+			
+Load Balancer - LB for services ,distribute load across multiple services 
+				A LoadBalancer service is the standard way to expose a service to the internet
+				will create an external Load Balancer (AWS Classic LB), “behind it” automatically will create a NodePort, then ClusterIP and in this way will route traffic from the Load Balancer to a pod in a cluster
+
+							  O    ------------------> External IP   
+							  |
+			       ___________|___________
+				  |			  |           |
+			 _____O___________O___________O_____  ------------>  NodePorts
+			|			|			 |			|
+			|			|			 |			|
+			|	Node1	|	Node 2	 |	 Node 3	|
+			|			|			 |			|
+			|___________|____________|__________|
+
+
+
+
+ExternalName -  something like a DNS-proxy – in response to such a Service will return a record taken via CNAME of the record specified in the externalName
+				which will redirect a request to a domain specified in its externalName parameter
+				Maps the Service to the contents of the externalName field (e.g. foo.bar.example.com), by returning a CNAME record
+				
+
+Note: ClusterIP is the default type of a service
+
+TargetPort(port of pod) , 
+
+Port(port of service),Cluster IP , 
+
+NodePort (port of node)
+
+
+Node Port <--> Port  <--> Target Port
+
+
+In Manifest File 
+
+If we didn't mention the NodePort then it will take the Port in below range automatically 
+Node Port Range - 30000-32767
+If we didn't provide target port it is assumed to be same as port 
+
+Labels and selectors are used to link pods to services
+
+when ever we create a multiple pods with same labels having same application 
+We attach a NodePort service with same label and selector 
+then the request will go to pods ,Here service will act as a LB and serves the requests to pods 
+
+Here 30008 NodePort is exposed 	
+
+			  __________________________________
+		     |			   |	   Node 1		| 
+			 |             |	   Service 	    |
+			 |             |	   30008	    |
+			 |			   |____________________|
+			 | 			   |	   Node 2		|
+Client  ---->|____Ext IP___|	   Service      |
+			 |             |       30008        |
+			 |             |____________________|
+			 |			   |	   Node 3		|
+			 |             | 	   Service	    |
+			 |			   |       30008	    |
+			 |_____________|____________________|
+			 
+			 
+Imperative vs Declarative 
+
+
+All are Imperative approach 
+
+kubectl run --image=nginx nginx  				----------------> create pod
+kubectl create deployment --image=nginx nginx	----------------> create deployment
+kubectl expose deployment nginx --port 80		----------------> create a service to deployment
+kubectl edit deployment nginx					----------------> edit the objects
+kubectl scale deployment nginx --replicas=5		----------------> scale the pods 
+kubectl set image deployment nginx nginx=nginx:1.18 ------------> set image
+kubectl create -f nginx-deployment.yaml			----------------> create the objects using file 
+kubectl replace -f nginx-deployment.yaml 		----------------> to replace the object in the file 
+kubectl delete -f nginx-deployment.yaml 		----------------> delete the objects created using file 
+
+Declarative approach 
+
+kubectl apply -f nginx-deployment.yaml	    	----------------> check the file and takes the decicsion accordingly to create objects 
+kubectl apply -f directory			----------------> will create all objects which are available in folder 
+
+kubectl apply is used as decalrtive approach to create the objects
+If objects are created by using manifest file later we made changes and try to run the same kubectl create -f manifest it will throw error as the objects are already created 
+but if we use apply it will only pick the changes made to file but not create all the objects in the file  
+
+
+Kubectl Apply 
+
+
+
+Deployment Strategy :
+
+recreate - will have downtime 
+rolling update update one after the other 
+
+Default deployment strategy us rollinupdate 
+
+
+Commands & Args 
+
+entrypoint in docker is command in kubernetes
+cmd in docker will be args in kubernetes
+
+Environment Variable
+
+env is an array , values will be in plain key value pair format 
+
+env:
+ - name: app
+   color: blue
+   
+ - name: app
+   color: red 
+
+
+ConfigMaps:
+
+All the confguration the needed for the pods are defined in a manifest file and use that file for when creating the pods 
+
+these are called ConfigMaps or configurations mapping 
+
+These are in form of key value pairs 
+
+when pod is create the config maps are injected in pods and config maps are available as env variables 
+
+kubectl create configmap nginx-configmap --from-literal=key1=value1 --from-literal=key2=value2 
+
+--from-literal is used to specify key value pairs in command line itself
+
+
+Secrets:
+
+Secrets are used to store the sensitive information , these are similar to config maps except they are stored in encoded format
+
+when pod is create the secrets are injected in pods 
+
+--from-literal is used to specify key value pairs in command line itself
+
+
+Remember that secrets encode data in base64 format. Anyone with the base64 encoded secret can easily decode it. As such the secrets can be considered as not very safe.
+
+The concept of safety of the Secrets is a bit confusing in Kubernetes. The kubernetes documentation page and a lot of blogs out there refer to secrets as a "safer option" to store sensitive data. They are safer than storing in plain text as they reduce the risk of accidentally exposing passwords and other sensitive data. In my opinion it's not the secret itself that is safe, it is the practices around it. 
+
+Secrets are not encrypted, so it is not safer in that sense. However, some best practices around using secrets make it safer. As in best practices like:
+
+Not checking-in secret object definition files to source code repositories.
+
+Enabling Encryption at Rest for Secrets so they are stored encrypted in ETCD. 
+
+
+Also the way kubernetes handles secrets. Such as:
+
+A secret is only sent to a node if a pod on that node requires it.
+
+Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
+
+Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
+
+Read about the protections and risks of using secrets here
+
+Having said that, there are other better ways of handling sensitive data like passwords in Kubernetes, such as using tools like Helm Secrets, HashiCorp Vault. I hope to make a lecture on these in the future.
+
+
+MultiContainer Pods:
+
+Thesea pods are defined in same manifest file where they share same network and storage 
+
+
+InitContainers
+
+
+Persistent Volumes:
+
+
+A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Class
+
+These are cteated by Administrator 
+
+AccessModes defines how a volume is mounted on the hosts 
+
+types of AccessModes
+ReadOnlyMany
+ReadWriteMany
+ReadWriteOnce
+
+Capacity
+We need specific amount of storage 
+
+hostPath
+tbis is where we define volume path  that need to be hosted 
+
+
+A Note on Namespaces
+PersistentVolumes binds are exclusive, and since PersistentVolumeClaims are namespaced objects, mounting claims with "Many" modes (ROX, RWX) is only possible within one namespace.
+
+
+PersistentVolumeClaim:
+
+A PersistentVolumeClaim (PVC) is a request for storage by a user. 
+
+It is similar to a Pod. Pods consume node resources and PVCs consume PV resources.
+ 
+Pods can request specific levels of resources (CPU and Memory). 
+
+Claims can request specific size and access modes (e.g., they can be mounted ReadWriteOnce, ReadOnlyMany or ReadWriteMany, see AccessModes).
+
+PVC bind to PV based on request properties such as 
+
+sufficient capacity
+AccessModes
+Volume Modes
+Storage Class 
+
+IF we have two PV having type of storage we can use Labels & Selectors
+
+There is one to one relation b/n pv and pvc so that no other pvc can claim PV 
+
+If no PV is available the PVC will be available in pending state 
+
+When ever we delete a PVC by default PV will be retained not get deleted 
+
+persistentVolumeReclaimPolicy : Retain/Delete/Recycle
+
+
+
+Ingress:
+
+
+Network Policies:
+
+Ingress vs Egress
+
+https://www.stackrox.com/post/2020/01/kubernetes-egress-network-policies/
+
+
+Ingress - Incoming traffic is ingress 
+Egress - Outgoing traffic is egress
+
+Network policy is similar to object such as pods ,services deployment and more 
+
+We can define rules in network policy 
+
+We can apply network policy on the pods 
+
+
+
+Manual Scheduler 
+
+Scheduler are used to move the pods to nodes based on the node capacity 
+
+We manually schedule pods by used nodeName in spec of pod . We can do it during pod creation time 
+
+We can't assign node after creation of pod but we can do it by binding the pod to node (yaml need to be converted to JSON and post it to API)
+
+If there are no scheduler running pods will be in pending state 
+
+
+Labels and Selectors
+
+
+Labels and Selectors are used to sort the application / tag application respective pods services and more 
+
+Annotations are used to record mored details about the objects created
+
+
+Taints & Tolerant :
+
+Node affinity, is a property of Pods that attracts them to a set of nodes (either as a preference or a hard requirement). Taints are the opposite -- they allow a node to repel a set of pods.
+
+Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+
+Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node; this marks that the node should not accept any pods that do not tolerate the taints.
+
+
+Taints are set on Nodes
+
+Tolerations are set on Pods 
+
+Taints & Tolerant doesn't tell pod to go to particular node instead it tells node to accept pods with certain tolerations
+
+
+Scheduler by default doesn't schedule pods on the master nodes 
+
+Taint Effects:
+
+NoSchedule			pods are not schedule on node unless there in matching tolerant 
+PreferNoSchedule	the system will try to avoid placing a pod that does not tolerate the taint on the node
+NoExecute			new pods will not be scheduled and old pods get evicted if not tolerated by taint
+					taint with effect NoExecute is added to a node, then any pods that do not tolerate the taint will be evicted immediately, and pods that do tolerate the taint will never be evicted
+
+
+A toleration "matches" a taint if the keys are the same and the effects are the same, and:
+
+the operator is Exists (in which case no value should be specified), or
+the operator is Equal and the values are equal.
+
+
+nodeSelector :
+
+node selector is used to specify node where pods need to be assigned ,This will be defined under pod definition file 
+
+We need to label nodes before using nodeSelector
+
+nodeSelector is the simplest recommended form of node selection constraint. nodeSelector is a field of PodSpec
+
+nodeAffinity:
+
+Node affinity is conceptually similar to nodeSelector -- it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node.
+
+There are currently two types of node affinity, called 
+
+requiredDuringSchedulingIgnoredDuringExecution (RDSIDE)
+
+preferredDuringSchedulingIgnoredDuringExecution. (PDSIDE)
+
+You can think of them as "hard" and "soft" respectively, in the sense that the former specifies rules that must be met for a pod to be scheduled onto a node (just like nodeSelector but using a more expressive syntax), while the latter specifies preferences that the scheduler will try to enforce but will not guarantee. 
+
+The "IgnoredDuringExecution" part of the names means that, similar to how nodeSelector works, if labels on a node change at runtime such that the affinity rules on a pod are no longer met, the pod will still continue to run on the node. 
+
+In the future we plan to offer 
+
+requiredDuringSchedulingRequiredDuringExecution (RDSRDE)
+
+which will be just like requiredDuringSchedulingIgnoredDuringExecution except that it will evict pods from nodes that cease to satisfy the pods' node affinity requirements.
+
+
+
+You can see the operator In being used in the example. 
+
+The new node affinity syntax supports the following operators:
+
+In, NotIn, Exists, DoesNotExist, Gt, Lt. 
+ 
+You can use NotIn and DoesNotExist to achieve node anti-affinity behavior, or use node taints to repel pods from specific nodes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kubernetes Maintenance 
+
+when worker node is down kube controller gives 5 mins to get it back 
+if its not back within 5 mins it evicts pods on the node 
+when node is back it doesn't have any pods scheduled on it , later the pods get scheduled based on new deployments deployed
+
+pods with relicasets where it got schedule on node which is down will be create on another node 
+
+drain will evicts pods and schedule them on another node 
+
+kubectl drain node-name 
+
+cordon makes node unscheduleable and dont evict pods 
+
+kubectl cordon node-name 
+
+uncordon makes node scheduleable and dont evict pods 
+
+kubectl uncordon node-name 
+
+
+
+
+
+
+
+
+
+
+
+
